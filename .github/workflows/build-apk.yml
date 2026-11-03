@@ -1,1 +1,38 @@
 
+name: Compilar APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android
+        uses: android-actions/setup-android@v4
+
+      - name: Instalar SDK
+        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+
+      - name: Compilar APK
+        run: bash ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MedicionCloroApp-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
